@@ -1,2 +1,6 @@
-Version 0.0 (2017-08-01)
+Version 0.0.0 (2017-08-01)
 	- Created project
+Version 0.0.1 (2017-08-01)
+	- Added SDL1.2 context
+	- Added OpenGL rendering functions
+	- Slightly changed README
