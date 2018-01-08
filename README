@@ -1,13 +1,13 @@
-openborne - Open-source Bloodborne OpenGL port
+openborne - Open-source Bloodborne OpenGL reimplementation
 
-openborne is a Bloodborne port written in C++ and OpenGL. This
-port does not include the game files, as that is strictly against
+openborne is a Bloodborne reimplementation written in C++ and OpenGL. This
+reimplementation does not include the game files, as that is strictly against
 the game publishers policy and against the law. Simply put,
 openborne is an engine, the game files are entirely separate.
 
 openborne targets most mainstream operating systems such as Windows,
 Linux and Mac OS X.
 
-openborne has online support, but it does not connect to the main
+openborne has online supreimplementation, but it does not connect to the main
 servers, but an emulated server which is hosted on a remote RamNode server.
 You may find the server emulator here: https://github.com/Openborne/bloodnet
