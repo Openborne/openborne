@@ -8,6 +8,6 @@ openborne is an engine, the game files are entirely separate.
 openborne targets most mainstream operating systems such as Windows,
 Linux and Mac OS X.
 
-openborne has online supreimplementation, but it does not connect to the main
+openborne has online support, but it does not connect to the main
 servers, but an emulated server which is hosted on a remote RamNode server.
 You may find the server emulator here: https://github.com/Openborne/bloodnet
