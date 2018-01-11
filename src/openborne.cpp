@@ -1,3 +1,5 @@
+#include <vector>
+#include <iterator>
 #include <map>
 #include <iostream>
 #include <cstdlib>

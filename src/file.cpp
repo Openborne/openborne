@@ -1,5 +1,6 @@
 #include <ios>
 #include <fstream>
+#include <iterator>
 #include <file.h>
 #include <game.h>
 #include <zlib.h>
@@ -20,11 +21,44 @@ T File::getu(std::ifstream& in)
 	return res;
 }
 
+template<typename T>
+T File::getu(std::vector<unsigned char>& data, uint32_t& pos)
+{
+	T res;
+
+	res = 0;
+	for (T i = sizeof(T)-1; i > 0; i--)
+		res |= data.at(pos+i) << (i * 8);
+	res |= data.at(pos);
+	pos += sizeof(T);
+	return res;
+}
+
 std::string File::gets(std::ifstream& in, unsigned n)
 {
 	char buf[n];
 	in.read(buf, n);
 	std::string res(buf);
+	return res;
+}
+
+std::string File::gets(std::vector<unsigned char> data, unsigned n, uint32_t& pos)
+{
+	std::string res;
+	for (unsigned i = 0; i < n; i++)
+		res += data.at(pos+i);
+	pos += n;
+	return res;
+}
+
+std::string File::gets(std::vector<unsigned char> data, uint32_t& pos)
+{
+	unsigned i;
+	std::string res;
+
+	for (i = 0; data.at(pos+i) != '\0'; i++)
+		res += data.at(pos+i);
+	pos += i;
 	return res;
 }
 
@@ -34,8 +68,7 @@ int File::Dcx::decompress(std::string path)
 		"DCX\0", "DCS\0", "DCP\0", "DFLT", "DCA\0"
 	};
 	std::ifstream in (path, std::ios::in | std::ios::binary);
-	char* tmp;
-	unsigned char* cdata;
+	std::vector<unsigned char> cdata;
 	unsigned long len;
 
 	if (!in.is_open())
@@ -62,16 +95,77 @@ int File::Dcx::decompress(std::string path)
 	if (getu<uint32_t>(in) != Dcx::dcasz)
 		return -3;
 
-	tmp = new char[compressed];
-	cdata = new unsigned char[compressed];
-	out = new unsigned char[uncompressed];
-
-	in.read(tmp, compressed);
-	cdata = reinterpret_cast<unsigned char*>(tmp);
+	out.resize(uncompressed);
+	cdata.reserve(compressed);
+	cdata.insert(cdata.begin(),
+		     std::istreambuf_iterator<char>(in),
+		     std::istreambuf_iterator<char>());
 	len = uncompressed;
-	uncompress(out, &len, cdata, compressed);
-	delete []cdata;
+	uncompress(&out[0], &len, &cdata[0], compressed);
 	in.close();
+	return 0;
+}
+
+int File::Bnd4::parse(std::vector<unsigned char> data)
+{
+	Entry e;
+	uint32_t pos = 0;
+	const std::string magic = "BND4";
+
+	if (gets(data, magic.length(), pos) != magic)
+		return -1; /* bad magic */
+	pos += 8;
+	filecnt = getu<uint32_t>(data, pos);
+	pos += 8;
+	version = gets(data, 8, pos);
+	direntry = getu<uint32_t>(data, pos);
+	pos += 4;
+	offset = getu<uint32_t>(data, pos);
+	pos += 4;
+	encoding = getu<uint8_t>(data, pos);
+	pos += 15;
+
+	if (encoding == 1) {
+		/* todo: utf-8 reading ... */
+	}
+
+	entries.reserve(filecnt);
+	for (uint32_t i = 0; i < filecnt; i++) {
+		uint32_t orig;
+		uint32_t fileentry, fileoffset, filesize;
+
+		pos += 8;
+		filesize = getu<uint32_t>(data, pos);
+		pos += 4;
+
+		if (direntry == 0x24) {
+			pos += 8;
+			fileentry = getu<uint32_t>(data, pos);
+			pos += 4;
+			fileoffset = getu<uint32_t>(data, pos);
+		} else {
+			fileentry = getu<uint32_t>(data, pos);
+			fileoffset = getu<uint32_t>(data, pos);
+		}
+
+		orig = pos;
+		std::string filename = "";
+		if (fileoffset > 0) {
+			pos = fileoffset;
+			filename = gets(data, pos);
+		}
+
+		pos = fileentry;
+		e.size = filesize;
+		e.name = filename;
+		e.data.reserve(filesize);
+		e.data.insert(e.data.begin(),
+			      data.begin()+pos,
+			      data.begin()+pos+filesize);
+		entries.push_back(e);
+		pos = orig;
+	}
+
 	return 0;
 }
 

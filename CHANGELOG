@@ -9,3 +9,6 @@ Version 0.0.2 (2018-11-01)
 	- Changed optimization level in Makefile
 	- Added file format parsing classes/functions for DCX and TXT formats
 	- Changed README to reflect updates
+Version 0.0.3 (2018-11-01)
+	- Added BND4 format parsing
+	- Changed DCX parser to use vectors
