@@ -1,8 +1,8 @@
-CFLAGS := -Wall -Wextra -O2
-LIB := -lSDL -lGL
+CFLAGS := -Wall -Wextra -O3 -g
+LIB := -lSDL -lGL -lz
 CC := c++
 TARGET := openborne
-SRC := $(wildcard src/*.cpp)
+SRC := $(wildcard src/*.cpp) $(wildcard src/bom/*.cpp)
 OBJ := $(SRC:.cpp=.o)
 
 all: $(TARGET)

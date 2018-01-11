@@ -2,6 +2,8 @@
 #include <math.h>
 #include <GL/gl.h>
 
+using namespace Ob;
+
 void Render::init(int width, int height)
 {
 	double fw, fh;

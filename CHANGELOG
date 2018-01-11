@@ -1,6 +1,11 @@
-Version 0.0.0 (2017-08-01)
+Version 0.0.0 (2018-08-01)
 	- Created project
-Version 0.0.1 (2017-08-01)
+Version 0.0.1 (2018-08-01)
 	- Added SDL1.2 context
 	- Added OpenGL rendering functions
 	- Slightly changed README
+Version 0.0.2 (2018-11-01)
+	- Encapsulated classes into one namespace
+	- Changed optimization level in Makefile
+	- Added file format parsing classes/functions for DCX and TXT formats
+	- Changed README to reflect updates

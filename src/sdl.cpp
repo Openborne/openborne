@@ -1,6 +1,8 @@
 #include <SDL.h>
 #include <game.h>
 
+using namespace Ob;
+
 int Game::init()
 {
 	int flags = SDL_OPENGL;

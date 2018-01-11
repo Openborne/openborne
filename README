@@ -12,7 +12,7 @@ openborne has online support, but it does not connect to the main
 servers, but an emulated server which is hosted on a remote RamNode server.
 You may find the server emulator here: https://github.com/Openborne/bloodnet
 
-To install, you will need SDL1.2 and OpenGL. Then, just type in:
+To install, you will need SDL1.2, zlib and OpenGL. Then, just type in:
 
 make
 make install

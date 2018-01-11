@@ -1,7 +1,12 @@
+#include <map>
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
 #include <game.h>
+#include <file.h>
+#include <cctype>
+
+using namespace Ob;
 
 typedef Game::Keys Keys;
 
@@ -20,11 +25,16 @@ static void update(Keys old[], Keys New[])
 				  << std::endl;
 }
 
-int main()
+int main(int argc, char *argv[])
 {
 	Game g;
-	Keys state[Keys::NKeys] = { static_cast<Keys>(0) };
+	static Keys state[Keys::NKeys];
 	Keys old[Keys::NKeys];
+
+	/* if (argc < 2) {
+		std::cerr << "usage: openborne <gamepath>" << std::endl;
+		return EXIT_FAILURE;
+	} */
 
 	if (g.init() == -1) {
 		std::cerr << "error: could not initialize SDL" << std::endl;
