@@ -12,3 +12,8 @@ Version 0.0.2 (2018-11-01)
 Version 0.0.3 (2018-11-01)
 	- Added BND4 format parsing
 	- Changed DCX parser to use vectors
+Version 0.0.4 (2018-19-01)
+	- Cleaned up code
+	- Converted File class to namespace
+	- Added UTF-8 (UTF-16) support for file strings
+	- Removed some minor stuff

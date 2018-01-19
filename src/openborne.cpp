@@ -1,12 +1,8 @@
-#include <vector>
-#include <iterator>
-#include <map>
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
 #include <game.h>
 #include <file.h>
-#include <cctype>
 
 using namespace Ob;
 

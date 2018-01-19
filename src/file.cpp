@@ -1,66 +1,11 @@
 #include <ios>
+#include <iostream>
 #include <fstream>
-#include <iterator>
 #include <file.h>
 #include <game.h>
 #include <zlib.h>
 
 using namespace Ob;
-
-template<typename T>
-T File::getu(std::ifstream& in)
-{
-	T res;
-	char tmp[sizeof(T)];
-	unsigned char* buf;
-
-	in.read(tmp, sizeof tmp);
-	buf = reinterpret_cast<unsigned char*>(tmp);
-	for (T i = res = 0; i < sizeof(T); i++)
-		res |= buf[sizeof(T)-1-i] << (i * 8);
-	return res;
-}
-
-template<typename T>
-T File::getu(std::vector<unsigned char>& data, uint32_t& pos)
-{
-	T res;
-
-	res = 0;
-	for (T i = sizeof(T)-1; i > 0; i--)
-		res |= data.at(pos+i) << (i * 8);
-	res |= data.at(pos);
-	pos += sizeof(T);
-	return res;
-}
-
-std::string File::gets(std::ifstream& in, unsigned n)
-{
-	char buf[n];
-	in.read(buf, n);
-	std::string res(buf);
-	return res;
-}
-
-std::string File::gets(std::vector<unsigned char> data, unsigned n, uint32_t& pos)
-{
-	std::string res;
-	for (unsigned i = 0; i < n; i++)
-		res += data.at(pos+i);
-	pos += n;
-	return res;
-}
-
-std::string File::gets(std::vector<unsigned char> data, uint32_t& pos)
-{
-	unsigned i;
-	std::string res;
-
-	for (i = 0; data.at(pos+i) != '\0'; i++)
-		res += data.at(pos+i);
-	pos += i;
-	return res;
-}
 
 int File::Dcx::decompress(std::string path)
 {
@@ -70,29 +15,27 @@ int File::Dcx::decompress(std::string path)
 	std::ifstream in (path, std::ios::in | std::ios::binary);
 	std::vector<unsigned char> cdata;
 	unsigned long len;
+	uint32_t header;
 
 	if (!in.is_open())
 		return -1; /* could not open */
-	if (gets(in, magictab[0].length()+1) != magictab[0])
+	if (Bit::string(in, magictab[0].length()+1) != magictab[0])
 		return -2; /* bad magic */
-	in.ignore(4);
-	if (getu<uint32_t>(in) != Dcx::hdrsz)
+	Bit::unpack(in, BigEndian, Bit::Skip(4), header);
+	if (header != Dcx::hdrsz)
 		return -3; /* bad header size */
-	in.ignore(12);
-	if (gets(in, magictab[1].length()+1) != magictab[1])
+	Bit::unpack(in, BigEndian, Bit::Skip(12));
+	if (Bit::string(in, magictab[1].length()+1) != magictab[1])
 		return -2;
-	uncompressed = getu<uint32_t>(in);
-	compressed = getu<uint32_t>(in);
-	if (gets(in, magictab[2].length()+1) != magictab[2]
-	 || gets(in, magictab[3].length()+1) != magictab[3])
+	Bit::unpack(in, BigEndian, uncompressed, compressed);
+	if (Bit::string(in, magictab[2].length()+1) != magictab[2]
+	 || Bit::string(in, magictab[3].length()+1) != magictab[3])
 		return -2;
-	getu<uint32_t>(in);
-	level = getu<uint32_t>(in);
-	in.ignore(15);
-
-	if (gets(in, magictab[4].length()+1) != magictab[4])
+	Bit::unpack(in, BigEndian, Bit::Skip(4), level, Bit::Skip(15));
+	if (Bit::string(in, magictab[4].length()+1) != magictab[4])
 		return -2;
-	if (getu<uint32_t>(in) != Dcx::dcasz)
+	Bit::unpack(in, BigEndian, header);
+	if (header != Dcx::dcasz)
 		return -3;
 
 	out.resize(uncompressed);
@@ -109,50 +52,32 @@ int File::Dcx::decompress(std::string path)
 int File::Bnd4::parse(std::vector<unsigned char> data)
 {
 	Entry e;
-	uint32_t pos = 0;
+	size_t pos = 0;
 	const std::string magic = "BND4";
 
-	if (gets(data, magic.length(), pos) != magic)
+	if (Bit::string(data, magic.length(), pos) != magic)
 		return -1; /* bad magic */
-	pos += 8;
-	filecnt = getu<uint32_t>(data, pos);
-	pos += 8;
-	version = gets(data, 8, pos);
-	direntry = getu<uint32_t>(data, pos);
-	pos += 4;
-	offset = getu<uint32_t>(data, pos);
-	pos += 4;
-	encoding = getu<uint8_t>(data, pos);
-	pos += 15;
-
-	if (encoding == 1) {
-		/* todo: utf-8 reading ... */
-	}
-
+	Bit::unpack(data, pos, LittleEndian, Bit::Skip(8), filecnt, Bit::Skip(8));
+	version = Bit::string(data, 8, pos);
+	Bit::unpack(data, pos, LittleEndian, direntry, Bit::Skip(4), offset,
+		    Bit::Skip(4), encoding, Bit::Skip(15));
 	entries.reserve(filecnt);
-	for (uint32_t i = 0; i < filecnt; i++) {
-		uint32_t orig;
+	for (size_t i = 0; i < filecnt; i++) {
+		size_t orig;
 		uint32_t fileentry, fileoffset, filesize;
 
-		pos += 8;
-		filesize = getu<uint32_t>(data, pos);
-		pos += 4;
-
-		if (direntry == 0x24) {
-			pos += 8;
-			fileentry = getu<uint32_t>(data, pos);
-			pos += 4;
-			fileoffset = getu<uint32_t>(data, pos);
-		} else {
-			fileentry = getu<uint32_t>(data, pos);
-			fileoffset = getu<uint32_t>(data, pos);
-		}
-
+		Bit::unpack(data, pos, LittleEndian, Bit::Skip(8), filesize, Bit::Skip(4));
+		if (direntry == 0x24)
+			Bit::unpack(data, pos, LittleEndian, Bit::Skip(8),
+				    fileentry, Bit::Skip(4), fileoffset);
+		else
+			Bit::unpack(data, pos, LittleEndian, fileentry, fileoffset);
+		
 		orig = pos;
 		std::string filename = "";
 		if (fileoffset > 0) {
 			pos = fileoffset;
-			filename = gets(data, pos);
+			filename = Bit::string(data, pos, encoding);
 		}
 
 		pos = fileentry;
