@@ -199,12 +199,12 @@ namespace Ob {
 			uint32_t level;
 			int decompress(std::string path);
 
-			std::vector<unsigned char> data()
+			std::vector<uint8_t> data()
 			{
 				return out;
 			}
 		private:
-			std::vector<unsigned char> out;
+			std::vector<uint8_t> out;
 			const unsigned hdrsz = 24;
 			const unsigned dcasz = 8;
 		};
@@ -214,7 +214,7 @@ namespace Ob {
 			struct Entry {
 				uint32_t size;
 				std::string name;
-				std::vector<unsigned char> data;
+				std::vector<uint8_t> data;
 			};
 
 			uint32_t filecnt;
@@ -223,7 +223,7 @@ namespace Ob {
 			uint32_t offset;
 			uint8_t encoding;
 
-			int parse(std::vector<unsigned char> data);
+			int parse(std::vector<uint8_t> data);
 
 			std::vector<Entry> data()
 			{

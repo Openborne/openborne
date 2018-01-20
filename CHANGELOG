@@ -17,3 +17,7 @@ Version 0.0.4 (2018-19-01)
 	- Converted File class to namespace
 	- Added UTF-8 (UTF-16) support for file strings
 	- Removed some minor stuff
+Version 0.0.5 (2018-20-01)
+	- Added more rendering code
+	- Added mouse event handling (SDL)
+	- Slightly modified README

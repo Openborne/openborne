@@ -17,7 +17,7 @@ int Game::init()
 		return -1;
 	}
 	SDL_WM_SetCaption(title.c_str(), title.c_str());
-	Render::init(width, height);
+	renderer.init(width, height);
 	return 0;
 }
 
@@ -41,6 +41,8 @@ int Game::input(Game::Keys state[NKeys])
 			set(state, ev.key.keysym.sym, 0);
 		if (ev.type == SDL_KEYDOWN)
 			set(state, ev.key.keysym.sym, 1);
+		if (ev.type == SDL_MOUSEMOTION)
+			mousex = ev.motion.x, mousey = ev.motion.y;
 	}
 
 	return 0;
@@ -48,11 +50,12 @@ int Game::input(Game::Keys state[NKeys])
 
 void Game::render()
 {
-	Render::draw();
+	renderer.draw();
 	SDL_GL_SwapBuffers();
 }
 
 void Game::exit()
 {
+	renderer.exit();
 	SDL_Quit();
 }

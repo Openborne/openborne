@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 	} */
 
 	if (g.init() == -1) {
-		std::cerr << "error: could not initialize SDL" << std::endl;
+		std::cerr << "error: could not initialize SDL context" << std::endl;
 		return EXIT_FAILURE;
 	}
 
